@@ -1,6 +1,8 @@
 echo A Instalação Está Começando Por Favor Espere
 sudo apt update -y
-sudo apt upgrade -y
+sudo apt upgrade -y 
+sudo rm /var/lib/dpkg/lock-frontend
+  sudo rm /var/cache/apt/archives/lock
 sudo apt install curl -y
 sudo apt install wget -y
 sudo apt install unzip -y
