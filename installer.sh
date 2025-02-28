@@ -12,13 +12,13 @@ echo ("Instalando Chrome")
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo apt install -y google-chrome-stable_current_amd64.deb
 echo ("Instalando Flathub")
- flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+ flatpak remote-add -y --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 echo ("Instalando VLC")
- flatpak install flathub org.videolan.VLC
+ flatpak install -y flathub org.videolan.VLC
 echo ("Instalando gimp e photo-gimp")
- flatpak install flathub org.gimp.GIMP
+ flatpak install -y flathub org.gimp.GIMP
 wget https://github.com/Diolinux/PhotoGIMP/releases/download/1.1/PhotoGIMP.zip
 sudo unzip PhotoGIMP.zip -d ~/
 echo ("Instalando Audacity")
- flatpak install flathub org.audacityteam.Audacity
+ flatpak install -y flathub org.audacityteam.Audacity
