@@ -18,9 +18,7 @@ echo Instalando Flathub
 
 echo Instalando VLC
  flatpak install -y flathub org.videolan.VLC
-echo Instalando gimp e photo-gimp
+echo Instalando gimp
  flatpak install -y flathub org.gimp.GIMP
-wget https://github.com/Diolinux/PhotoGIMP/releases/download/1.1/PhotoGIMP.zip
-unzip PhotoGIMP.zip -d ~/
 echo Instalando Audacity
  flatpak install -y flathub org.audacityteam.Audacity
