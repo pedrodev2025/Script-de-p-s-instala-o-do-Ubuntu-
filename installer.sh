@@ -66,10 +66,8 @@ if [ "$?" -eq 0 ]; then
   flatpak install -y flathub org.audacityteam.Audacity | tee -a /var/logs/post-install-ubuntu-logs.log
   check_status "flatpak install -y flathub org.audacityteam.Audacity"
    echo Instalando Onlyoffice | tee -a /var/logs/post-install-ubuntu-logs.log
-   wget https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
-   check_status "wget https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb"
-   sudo apt install ./onlyoffice-desktopeditors.deb -y | tee -a /var/logs/post-install-ubuntu-logs.log
-   check_status "sudo apt install ./onlyoffice-desktopeditors.deb -y"
+   flatpak install flathub org.onlyoffice.desktopeditors | tee -a /var/logs/post-install-ubuntu-logs.log
+   check_status "flatpak install flathub org.onlyoffice.desktopeditors"
    echo Instalando LM Studio | tee -a /var/logs/post-install-ubuntu-logs.log
    wget -O /home/$USER/AppImages/lmstudio.AppImage https://installers.lmstudio.ai/linux/x64/0.3.14-5/LM-Studio-0.3.14-5-x64.AppImage
    check_status "wget -O /home/$USER/AppImages/lmstudio.AppImage https://installers.lmstudio.ai/linux/x64/0.3.14-5/LM-Studio-0.3.14-5-x64.AppImage"
