@@ -35,10 +35,10 @@ if [ "$?" -eq 0 ]; then
   sudo apt upgrade -y | tee -a /var/logs/post-install-ubuntu-logs.log
   check_status "sudo apt upgrade -y"
   # Remover locks do APT (manter com cautela)
-  # sudo rm /var/lib/dpkg/lock-frontend
-  # check_status "sudo rm /var/lib/dpkg/lock-frontend"
-  # sudo rm /var/cache/apt/archives/lock
-  # check_status "sudo rm /var/cache/apt/archives/lock"
+  sudo rm /var/lib/dpkg/lock-frontend
+  check_status "sudo rm /var/lib/dpkg/lock-frontend"
+  sudo rm /var/cache/apt/archives/lock
+  check_status "sudo rm /var/cache/apt/archives/lock"
   sudo apt install curl -y | tee -a /var/logs/post-install-ubuntu-logs.log
   check_status "sudo apt install curl -y"
   sudo apt install wget -y | tee -a /var/logs/post-install-ubuntu-logs.log
