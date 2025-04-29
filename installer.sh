@@ -93,6 +93,37 @@ if [ "$?" -eq 0 ]; then
   echo Removendo Libreoffice | tee -a /var/logs/post-install-ubuntu-logs.log
   sudo apt purge libreoffice* -y | tee -a /var/logs/post-install-ubuntu-logs.log
   check_status "sudo apt purge libreoffice* -y"
+# setando systemd config
+echo setando systemd config
+
+# Conteúdo do arquivo .service
+SERVICE_CONTENT="[Unit]
+Description=configura a Pasta TEMP no boot
+After=multi-user.target
+
+[Service]
+Type=oneshot
+User=pedro
+WorkingDirectory=/home/pedro
+ExecStart=/home/pedro/limpar_temp.sh
+
+[Install]
+WantedBy=multi-user.target
+"
+
+# Caminho do arquivo .service
+SERVICE_FILE="/etc/systemd/system/limpar_pasta.service"
+
+# Cria o arquivo .service
+echo "$SERVICE_CONTENT" > "$SERVICE_FILE"
+check_status "echo '$SERVICE_CONTENT' > '$SERVICE_FILE'"
+
+echo "Arquivo '$SERVICE_FILE' criado com sucesso."
+echo "Lembre-se que para o systemd reconhecer a nova unidade, você precisará executar:"
+echo "  sudo systemctl daemon-reload"
+echo "E para habilitar a execução no boot:"
+echo "  sudo systemctl enable limpar_pasta.service"
+  
   echo "Script concluído." | tee -a /var/logs/post-install-ubuntu-logs.log
   exit 0
 
