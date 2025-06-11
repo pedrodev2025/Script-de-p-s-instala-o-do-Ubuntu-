@@ -1,133 +1,161 @@
 #!/bin/bash
 
+# Variável para o arquivo de log
+LOG_FILE="/var/log/post-install-ubuntu-logs.log"
+
+# Função para exibir mensagens e registrar no log
+log_message() {
+  echo "$1" | tee -a "$LOG_FILE"
+}
+
 # Função para verificar o status do comando e sair em caso de erro
 check_status() {
-  if [ "$?" -ne 0 ]; then
-    echo "ERROR: O comando '$1' falhou com código de saída $?. Saindo do script." | tee -a /var/logs/post-install-ubuntu-logs.log
+  local cmd_name="<span class="math-inline">1"
+if \[ "</span>?" -ne 0 ]; then
+    log_message "ERROR: O comando '$cmd_name' falhou com código de saída $?. Saindo do script."
     exit 1
   fi
 }
 
+# Verifica se o script está sendo executado com sudo
+if [[ $EUID -ne 0 ]]; then
+  log_message "ERROR: Este script precisa ser executado com privilégios de root (sudo)."
+  exit 1
+fi
+
 # Tenta fazer ping em um servidor confiável (Google DNS)
+log_message "Verificando conexão com a internet..."
 ping -c 1 8.8.8.8 > /dev/null 2>&1
 check_status "ping -c 1 8.8.8.8"
 
-if [ "$?" -eq 0 ]; then
-  echo "Conectado à internet. Continuando o script..." | tee -a /var/logs/post-install-ubuntu-logs.log
-  echo A Instalação Está Começando Por Favor Espere | tee -a /var/logs/post-install-ubuntu-logs.log
-
-  # Criando Pastas De Produtividade
-  echo Criando Pastas De Produtividade | tee -a /var/logs/post-install-ubuntu-logs.log
-  mkdir /home/$USER/TEMP
-  check_status "mkdir /home/$USER/TEMP"
-  chmod 700 /home/$USER/TEMP
-  check_status "chmod 700 /home/$USER/TEMP"
-  mkdir /home/$USER/Documentos/Planilhas
-  check_status "mkdir /home/$USER/Documentos/Planilhas"
-  chmod 700 /home/$USER/Documentos/Planilhas
-  check_status "chmod 700 /home/$USER/Documentos/Planilhas"
-  mkdir /home/$USER/AppImages/
-  check_status "mkdir /home/$USER/AppImages/"
-  chmod 700 /home/$USER/AppImages/
-  check_status "chmod 700 /home/$USER/AppImages/"
-  sudo apt update -y | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "sudo apt update -y"
-  sudo apt upgrade -y | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "sudo apt upgrade -y"
-  # Remover locks do APT (manter com cautela)
-  sudo rm /var/lib/dpkg/lock-frontend
-  check_status "sudo rm /var/lib/dpkg/lock-frontend"
-  sudo rm /var/cache/apt/archives/lock
-  check_status "sudo rm /var/cache/apt/archives/lock"
-  sudo apt install curl -y | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "sudo apt install curl -y"
-  sudo apt install wget -y | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "sudo apt install wget -y"
-  sudo apt install unzip -y | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "sudo apt install unzip -y"
-  echo Instalando Flatpak | tee -a /var/logs/post-install-ubuntu-logs.log
-  sudo apt install flatpak -y | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "sudo apt install flatpak -y"
-  echo Instalando Chrome | tee -a /var/logs/post-install-ubuntu-logs.log
-  wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-  check_status "wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-  sudo apt install -y ./google-chrome-stable_current_amd64.deb | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "sudo apt install -y ./google-chrome-stable_current_amd64.deb"
-  echo Instalando Flathub | tee -a /var/logs/post-install-ubuntu-logs.log
-  flatpak remote-add  --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "flatpak remote-add  --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
-  echo Instalando VLC | tee -a /var/logs/post-install-ubuntu-logs.log
-  flatpak install -y flathub org.videolan.VLC | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "flatpak install -y flathub org.videolan.VLC"
-  echo Instalando gimp | tee -a /var/logs/post-install-ubuntu-logs.log
-  flatpak install -y flathub org.gimp.GIMP | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "flatpak install -y flathub org.gimp.GIMP"
-  echo Instalando Audacity | tee -a /var/logs/post-install-ubuntu-logs.log
-  flatpak install -y flathub org.audacityteam.Audacity | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "flatpak install -y flathub org.audacityteam.Audacity"
-   echo Instalando Onlyoffice | tee -a /var/logs/post-install-ubuntu-logs.log
-   flatpak install flathub org.onlyoffice.desktopeditors | tee -a /var/logs/post-install-ubuntu-logs.log
-   check_status "flatpak install flathub org.onlyoffice.desktopeditors"
-   echo Instalando LM Studio | tee -a /var/logs/post-install-ubuntu-logs.log
-   wget -O /home/$USER/AppImages/lmstudio.AppImage https://installers.lmstudio.ai/linux/x64/0.3.14-5/LM-Studio-0.3.14-5-x64.AppImage
-   check_status "wget -O /home/$USER/AppImages/lmstudio.AppImage https://installers.lmstudio.ai/linux/x64/0.3.14-5/LM-Studio-0.3.14-5-x64.AppImage"
-   echo Instalando Gnome Software | tee -a /var/logs/post-install-ubuntu-logs.log
-   sudo apt install gnome-software -y | tee -a /var/logs/post-install-ubuntu-logs.log
-   check_status "sudo apt install gnome-software -y"
-   sudo apt install gnome-software-plugin-flatpak -y | tee -a /var/logs/post-install-ubuntu-logs.log
-   check_status "sudo apt install gnome-software-plugin-flatpak -y"
-  # Removendo Programas
-  echo Removendo Programas | tee -a /var/logs/post-install-ubuntu-logs.log
-  # Removendo Snap
-  echo Removendo Snap | tee -a /var/logs/post-install-ubuntu-logs.log
-  SNAP_PACKAGES=$(snap list | awk 'NR>1 {print $1}')
-  if [ -n "$SNAP_PACKAGES" ]; then
-    echo "Removendo os seguintes snaps: $SNAP_PACKAGES" | tee -a /var/logs/post-install-ubuntu-logs.log
-    sudo snap remove -y --purge $SNAP_PACKAGES
-    check_status "sudo snap remove -y --purge $SNAP_PACKAGES"
-  fi
-  echo "Removendo o snapd" | tee -a /var/logs/post-install-ubuntu-logs.log
-  sudo apt purge snapd -y | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "sudo apt purge snapd -y"
-  # Removendo Libreoffice
-  echo Removendo Libreoffice | tee -a /var/logs/post-install-ubuntu-logs.log
-  sudo apt purge libreoffice* -y | tee -a /var/logs/post-install-ubuntu-logs.log
-  check_status "sudo apt purge libreoffice* -y"
-# setando systemd config
-echo setando systemd config
-
-# Conteúdo do arquivo .service
-SERVICE_CONTENT="[Unit]
-Description=configura a Pasta TEMP no boot
-After=multi-user.target
-
-[Service]
-Type=oneshot
-User=pedro
-WorkingDirectory=/home/pedro
-ExecStart=/home/pedro/limpar_temp.sh
-
-[Install]
-WantedBy=multi-user.target
-"
-
-# Caminho do arquivo .service
-SERVICE_FILE="/etc/systemd/system/limpar_pasta.service"
-
-# Cria o arquivo .service
-echo "$SERVICE_CONTENT" > "$SERVICE_FILE"
-check_status "echo '$SERVICE_CONTENT' > '$SERVICE_FILE'"
-
-echo "Arquivo '$SERVICE_FILE' criado com sucesso."
-echo "Lembre-se que para o systemd reconhecer a nova unidade, você precisará executar:"
-echo "  sudo systemctl daemon-reload"
-echo "E para habilitar a execução no boot:"
-echo "  sudo systemctl enable limpar_pasta.service"
-  
-  echo "Script concluído." | tee -a /var/logs/post-install-ubuntu-logs.log
-  exit 0
-
-else
-  echo "ERROR: Esse Script Precisa De Internet. Por Favor Conecte A Internet." | tee -a /var/logs/post-install-ubuntu-logs.log
+# Se chegamos aqui, a conexão está ok
+# Define a variável USER para o usuário que chamou o sudo
+USER=$SUDO_USER
+if [ -z "$USER" ]; then
+  log_message "ERROR: Não foi possível determinar o usuário que invocou o sudo. Saindo."
   exit 1
 fi
+
+log_message "Conectado à internet. Continuando o script..."
+log_message "A Instalação Está Começando. Por favor, espere..."
+
+# Criando Pastas De Produtividade
+log_message "Criando Pastas De Produtividade"
+
+# Configurando a pasta TEMP como tmpfs
+log_message "Configurando a pasta /home/$USER/TEMP como tmpfs..."
+mkdir -p "/home/$USER/TEMP"
+check_status "mkdir -p /home/$USER/TEMP"
+chmod 700 "/home/$USER/TEMP"
+check_status "chmod 700 /home/$USER/TEMP"
+
+# Adiciona a entrada tmpfs ao /etc/fstab
+# Recomenda-se um tamanho máximo para evitar o uso excessivo de RAM.
+# Ex: size=2G para 2GB, ou 50% da RAM (size=50%)
+# Pode ajustar o 'size' conforme a necessidade do usuário.
+FSTAB_ENTRY="tmpfs /home/$USER/TEMP tmpfs rw,nosuid,nodev,noatime,size=1G,uid=$USER,gid=$USER,mode=700 0 0"
+
+# Verifica se a entrada já existe para evitar duplicações
+if ! grep -q "^tmpfs /home/$USER/TEMP" /etc/fstab; then
+  log_message "Adicionando entrada para tmpfs em /etc/fstab..."
+  echo "$FSTAB_ENTRY" >> /etc/fstab
+  check_status "adicionar tmpfs ao /etc/fstab"
+  log_message "Entrada para tmpfs adicionada ao /etc/fstab."
+else
+  log_message "Entrada para tmpfs já existe em /etc/fstab. Pulando adição."
+fi
+
+# Monta o tmpfs imediatamente
+log_message "Montando o tmpfs para /home/$USER/TEMP..."
+mount "/home/$USER/TEMP"
+check_status "mount /home/$USER/TEMP"
+log_message "Pasta /home/$USER/TEMP agora é um tmpfs."
+
+mkdir -p "/home/$USER/Documentos/Planilhas"
+check_status "mkdir -p /home/$USER/Documentos/Planilhas"
+chmod 700 "/home/$USER/Documentos/Planilhas"
+check_status "chmod 700 /home/$USER/Documentos/Planilhas"
+
+mkdir -p "/home/$USER/AppImages/"
+check_status "mkdir -p /home/$USER/AppImages/"
+chmod 700 "/home/$USER/AppImages/"
+check_status "chmod 700 /home/$USER/AppImages/"
+
+log_message "Atualizando e atualizando o sistema..."
+apt update -y
+check_status "apt update -y"
+apt upgrade -y
+check_status "apt upgrade -y"
+
+log_message "Instalando utilitários básicos (curl, wget, unzip)..."
+apt install curl -y
+check_status "apt install curl -y"
+apt install wget -y
+check_status "apt install wget -y"
+apt install unzip -y
+check_status "apt install unzip -y"
+
+log_message "Instalando Flatpak..."
+apt install flatpak -y
+check_status "apt install flatpak -y"
+
+log_message "Instalando Google Chrome..."
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O "/home/$USER/google-chrome-stable_current_amd64.deb"
+check_status "wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+apt install -y "/home/$USER/google-chrome-stable_current_amd64.deb"
+check_status "apt install -y /home/$USER/google-chrome-stable_current_amd64.deb"
+rm "/home/$USER/google-chrome-stable_current_amd64.deb"
+log_message "Google Chrome instalado e arquivo .deb removido."
+
+log_message "Adicionando o repositório Flathub..."
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+check_status "flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
+
+log_message "Atualizando o banco de dados do Flatpak..."
+flatpak update --noninteractive
+check_status "flatpak update --noninteractive"
+
+# Instalação de aplicativos Flatpak
+log_message "Instalando VLC (via Flatpak)..."
+flatpak install --noninteractive flathub org.videolan.VLC
+check_status "flatpak install --noninteractive flathub org.videolan.VLC"
+
+log_message "Instalando GIMP (via Flatpak)..."
+flatpak install --noninteractive flathub org.gimp.GIMP
+check_status "flatpak install --noninteractive flathub org.gimp.GIMP"
+
+log_message "Instalando Audacity (via Flatpak)..."
+flatpak install --noninteractive flathub org.audacityteam.Audacity
+check_status "flatpak install --noninteractive flathub org.audacityteam.Audacity"
+
+log_message "Instalando Onlyoffice (via Flatpak)..."
+flatpak install --noninteractive flathub org.onlyoffice.desktopeditors
+check_status "flatpak install --noninteractive flathub org.onlyoffice.desktopeditors"
+
+log_message "Instalando LM Studio..."
+if command -v wget &> /dev/null; then
+  LM_STUDIO_URL="https://installers.lmstudio.ai/linux/x64/0.3.14-5/LM-Studio-0.3.14-5-x64.AppImage"
+  OUTPUT_PATH="/home/$USER/AppImages/lmstudio.AppImage"
+  log_message "Baixando LM Studio de: $LM_STUDIO_URL para $OUTPUT_PATH"
+  wget -O "$OUTPUT_PATH" "$LM_STUDIO_URL"
+  check_status "wget -O \"$OUTPUT_PATH\" \"$LM_PATH_URL\""
+  chmod +x "$OUTPUT_PATH"
+  check_status "chmod +x \"<span class="math-inline">OUTPUT\_PATH\\""
+else
+log\_message "AVISO\: wget não está instalado\. Pulando a instalação do LM Studio\."
+fi
+log\_message "Instalando Gnome Software e plugin Flatpak\.\.\."
+apt install gnome\-software \-y
+check\_status "apt install gnome\-software \-y"
+apt install gnome\-software\-plugin\-flatpak \-y
+check\_status "apt install gnome\-software\-plugin\-flatpak \-y"
+\# Removendo Programas
+log\_message "Removendo Programas\.\.\."
+\# Removendo Snap
+log\_message "Removendo Snap\.\.\."
+SNAP\_PACKAGES\=</span>(snap list | awk 'NR>1 {print $1}')
+if [ -n "$SNAP_PACKAGES" ]; then
+  log_message "Removendo os seguintes snaps: $SNAP_PACKAGES"
+  for snap_package in $SNAP_PACKAGES; do
+    snap remove "$snap_package" --purge --no-wait
+    check_status "snap remove $snap_package
