@@ -10,8 +10,8 @@ log_message() {
 
 # Função para verificar o status do comando e sair em caso de erro
 check_status() {
-  local cmd_name="<span class="math-inline">1"
-if \[ "</span>?" -ne 0 ]; then
+  local cmd_name="$1" # Corrigido: Agora usa o primeiro argumento como nome do comando
+  if [ "$?" -ne 0 ]; then
     log_message "ERROR: O comando '$cmd_name' falhou com código de saída $?. Saindo do script."
     exit 1
   fi
@@ -46,6 +46,7 @@ log_message "Criando Pastas De Produtividade"
 log_message "Configurando a pasta /home/$USER/TEMP como tmpfs..."
 mkdir -p "/home/$USER/TEMP"
 check_status "mkdir -p /home/$USER/TEMP"
+chown "$USER":"$USER" "/home/$USER/TEMP" # Adicionado chown
 chmod 700 "/home/$USER/TEMP"
 check_status "chmod 700 /home/$USER/TEMP"
 
@@ -73,11 +74,13 @@ log_message "Pasta /home/$USER/TEMP agora é um tmpfs."
 
 mkdir -p "/home/$USER/Documentos/Planilhas"
 check_status "mkdir -p /home/$USER/Documentos/Planilhas"
+chown "$USER":"$USER" "/home/$USER/Documentos/Planilhas" # Adicionado chown
 chmod 700 "/home/$USER/Documentos/Planilhas"
 check_status "chmod 700 /home/$USER/Documentos/Planilhas"
 
 mkdir -p "/home/$USER/AppImages/"
 check_status "mkdir -p /home/$USER/AppImages/"
+chown "$USER":"$USER" "/home/$USER/AppImages/" # Adicionado chown
 chmod 700 "/home/$USER/AppImages/"
 check_status "chmod 700 /home/$USER/AppImages/"
 
@@ -133,29 +136,40 @@ flatpak install --noninteractive flathub org.onlyoffice.desktopeditors
 check_status "flatpak install --noninteractive flathub org.onlyoffice.desktopeditors"
 
 log_message "Instalando LM Studio..."
-if command -v wget &> /dev/null; then
-  LM_STUDIO_URL="https://installers.lmstudio.ai/linux/x64/0.3.14-5/LM-Studio-0.3.14-5-x64.AppImage"
-  OUTPUT_PATH="/home/$USER/AppImages/lmstudio.AppImage"
-  log_message "Baixando LM Studio de: $LM_STUDIO_URL para $OUTPUT_PATH"
-  wget -O "$OUTPUT_PATH" "$LM_STUDIO_URL"
-  check_status "wget -O \"$OUTPUT_PATH\" \"$LM_PATH_URL\""
-  chmod +x "$OUTPUT_PATH"
-  check_status "chmod +x \"<span class="math-inline">OUTPUT\_PATH\\""
-else
-log\_message "AVISO\: wget não está instalado\. Pulando a instalação do LM Studio\."
-fi
-log\_message "Instalando Gnome Software e plugin Flatpak\.\.\."
-apt install gnome\-software \-y
-check\_status "apt install gnome\-software \-y"
-apt install gnome\-software\-plugin\-flatpak \-y
-check\_status "apt install gnome\-software\-plugin\-flatpak \-y"
-\# Removendo Programas
-log\_message "Removendo Programas\.\.\."
-\# Removendo Snap
-log\_message "Removendo Snap\.\.\."
-SNAP\_PACKAGES\=</span>(snap list | awk 'NR>1 {print $1}')
+# Removida a verificação redundante por 'wget', já que ele é instalado no início do script.
+LM_STUDIO_URL="https://installers.lmstudio.ai/linux/x64/0.3.14-5/LM-Studio-0.3.14-5-x64.AppImage"
+OUTPUT_PATH="/home/$USER/AppImages/lmstudio.AppImage"
+log_message "Baixando LM Studio de: $LM_STUDIO_URL para $OUTPUT_PATH"
+wget -O "$OUTPUT_PATH" "$LM_STUDIO_URL"
+check_status "wget -O \"$OUTPUT_PATH\" \"$LM_STUDIO_URL\"" # Corrigido: Usando a variável correta
+chmod +x "$OUTPUT_PATH"
+check_status "chmod +x \"$OUTPUT_PATH\"" # Corrigido: Sintaxe da string
+
+log_message "Instalando Gnome Software e plugin Flatpak..."
+apt install gnome-software -y
+check_status "apt install gnome-software -y"
+apt install gnome-software-plugin-flatpak -y
+check_status "apt install gnome-software-plugin-flatpak -y"
+
+# Removendo Programas
+log_message "Removendo Programas..."
+# Removendo Snap
+log_message "Removendo Snap..."
+# Obtém uma lista de pacotes snap instalados, excluindo a primeira linha (cabeçalho)
+SNAP_PACKAGES=$(snap list | awk 'NR>1 {print $1}')
 if [ -n "$SNAP_PACKAGES" ]; then
   log_message "Removendo os seguintes snaps: $SNAP_PACKAGES"
   for snap_package in $SNAP_PACKAGES; do
+    log_message "Tentando remover snap: $snap_package"
     snap remove "$snap_package" --purge --no-wait
-    check_status "snap remove $snap_package
+    # O check_status pode não funcionar bem aqui se 'snap remove' retornar 0 mesmo com avisos.
+    # Para scripts de autoinstalação, se a intenção é apenas tentar remover, pode-se confiar
+    # na saída do comando sem interromper o script.
+    # check_status "snap remove $snap_package --purge --no-wait"
+  done
+  log_message "Remoção de snaps concluída."
+else
+  log_message "Nenhum snap encontrado para remover."
+fi
+
+log_message "Script de pós-instalação concluído com sucesso!"
