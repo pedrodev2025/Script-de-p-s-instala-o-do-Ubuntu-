@@ -35,7 +35,7 @@ if [ -z "$USER" ]; then
   log_message "ERROR: Não foi possível determinar o usuário que invocou o sudo. Saindo."
   exit 1
 fi
-
+groupadd $USER
 log_message "Conectado à internet. Continuando o script..."
 log_message "A Instalação Está Começando. Por favor, espere..."
 
