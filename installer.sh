@@ -54,7 +54,7 @@ check_status "chmod 700 /home/$USER/TEMP"
 # Recomenda-se um tamanho máximo para evitar o uso excessivo de RAM.
 # Ex: size=2G para 2GB, ou 50% da RAM (size=50%)
 # Pode ajustar o 'size' conforme a necessidade do usuário.
-FSTAB_ENTRY="tmpfs /home/$USER/TEMP tmpfs rw,nosuid,nodev,noatime,size=1G,uid=$USER,gid=$USER,mode=700 0 0"
+FSTAB_ENTRY="tmpfs /home/$USER/TEMP tmpfs rw,nosuid,nodev,noatime,size=4G,uid=$USER,gid=$USER,mode=700 0 0"
 
 # Verifica se a entrada já existe para evitar duplicações
 if ! grep -q "^tmpfs /home/$USER/TEMP" /etc/fstab; then
